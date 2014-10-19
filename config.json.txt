@@ -1,0 +1,7 @@
+{
+    "name": "myapi",
+    "version": "1.0.0",
+    "resources": [
+        { "name": "users", "methods": "" }
+    ]
+}

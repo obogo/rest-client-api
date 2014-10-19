@@ -1,0 +1,20 @@
+{
+  "name": "api",
+  "description": "Creates a JavaScript API client",
+  "version": "1.0.0",
+  "dependencies": {},
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-clean": "~0.5.0",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-copy": "~0.4.1",
+    "grunt-contrib-jshint": "~0.6.3",
+    "grunt-contrib-less": "~0.11.1",
+    "grunt-contrib-uglify": "~0.5.1",
+    "grunt-ng-annotate": "^0.3.2",
+    "grunt-replace": "~0.7.7"
+  },
+  "engines": {
+    "node": ">=0.8.0"
+  }
+}

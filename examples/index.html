@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<script src="js/myapi.js"></script>
+<script>
+    myapi.users.all({name:'rob'})
+        .error(function (response) { console.log('error', response); })
+        .success(function (response) { console.log('success', response); });
+</script>
+</body>
+</html>
