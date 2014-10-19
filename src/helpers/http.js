@@ -1,4 +1,3 @@
-/* global ajax */
 var http = (function () {
     /**
      * Module dependencies.
@@ -68,7 +67,21 @@ var http = (function () {
         // Success callback
         if (that.success !== undefined) {
             that.xhr.onload = function () {
-                that.success.call(this, this.responseText);
+                var headers = parseResponseHeaders(this.getAllResponseHeaders());
+                var response = this.responseText;
+                if (headers.contentType && headers.contentType.indexOf('application/json') !== -1) {
+                    response = JSON.parse(response);
+                }
+                that.success.call(this, {
+                    data:response,
+                    request: {
+                        method: that.method,
+                        url: that.url,
+                        data: that.data,
+                        headers: that.headers
+                    },
+                    headers:headers,
+                    status:this.status});
             };
         }
 
@@ -105,6 +118,37 @@ var http = (function () {
         return that;
     };
 
+    function parseResponseHeaders(str) {
+        var list = str.split("\n");
+        var headers = {};
+        var parts;
+        var i = 0, len = list.length;
+        while (i < len) {
+            parts = list[i].split(': ');
+            if (parts[0] && parts[1]) {
+                parts[0] = parts[0].split('-').join('').split('');
+                parts[0][0] = parts[0][0].toLowerCase();
+                headers[parts[0].join('')] = parts[1];
+            }
+            i += 1;
+        }
+        return headers;
+    }
+
+    function addDefaults(options, defaults) {
+        for(var i in defaults) {
+            if(defaults.hasOwnProperty(i) && options[i] === undefined) {
+                if (typeof defaults[i] === 'object') {
+                    options[i] = {};
+                    addDefaults(options[i], defaults[i]);
+                } else {
+                    options[i] = defaults[i];
+                }
+            }
+        }
+        return options;
+    }
+
     /**
      * Public Methods
      */
@@ -131,11 +175,14 @@ var http = (function () {
                 }
 
                 options.method = method.toUpperCase();
-
+                addDefaults(options, result.defaults);
                 return new Request(options).xhr;
             };
         }());
         /* jshint ignore:end */
     }
+    result.defaults = {
+        headers: {}
+    };
     return result;
 }());

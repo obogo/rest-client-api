@@ -7,9 +7,13 @@
 <body>
 <script src="js/myapi.js"></script>
 <script>
-    myapi.users.all({name:'rob'})
-        .error(function (response) { console.log('error', response); })
-        .success(function (response) { console.log('success', response); });
+    myapi.users.all({name: 'rob'})
+            .error(function (response) {
+                console.log('error', response);
+            })
+            .success(function (response) {
+                console.log('success', response.status, response.data);
+            });
 </script>
 </body>
 </html>
