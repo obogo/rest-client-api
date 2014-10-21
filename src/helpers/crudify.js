@@ -1,10 +1,16 @@
-/* global resource, defer, http, crudify, exports */
+/* global resource, defer, http, crudify, exports, singularize */
 var crudify = (function () {
+
+    var $baseUrl = "!!baseUrl";
     var $methods = {};
+
+    function capitalize(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
 
     $methods.all = function (name) {
         return function (params) {
-            var url = resource(name).params(params).toUrl();
+            var url = resource({ baseUrl: $baseUrl }).resource(name).params(params).toUrl();
             var deferred = defer();
             http.get(url, function (response) {
                 deferred.resolve(response);
@@ -16,7 +22,7 @@ var crudify = (function () {
 
     $methods.create = function (name) {
         return function (data, params) {
-            var url = resource(name).params(params).toUrl();
+            var url = resource({ baseUrl: $baseUrl }).resource(name).params(params).toUrl();
             var deferred = defer();
             http.post(url, data, function (response) {
                 deferred.resolve(response);
@@ -28,7 +34,7 @@ var crudify = (function () {
 
     $methods.get = function (name) {
         return function (id, params) {
-            var url = resource(name, id).params(params).toUrl();
+            var url = resource({ baseUrl: $baseUrl }).resource(name, id).params(params).toUrl();
             var deferred = defer();
             http.get(url, function (response) {
                 deferred.resolve(response);
@@ -40,7 +46,7 @@ var crudify = (function () {
 
     $methods.update = function (name) {
         return function (id, data, params) {
-            var url = resource(name, id).params(params).toUrl();
+            var url = resource({ baseUrl: $baseUrl }).resource(name, id).params(params).toUrl();
             var deferred = defer();
             http.put(url, data, function (response) {
                 deferred.resolve(response);
@@ -52,7 +58,7 @@ var crudify = (function () {
 
     $methods.delete = function (name) {
         return function (id, params) {
-            var url = resource(name, id).params(params).toUrl();
+            var url = resource({ baseUrl: $baseUrl }).resource(name, id).params(params).toUrl();
             var deferred = defer();
             http.delete(url, function (response) {
                 deferred.resolve(response);
@@ -62,20 +68,41 @@ var crudify = (function () {
         };
     };
 
-    return function (target, name, methods) {
+    return function (target, options, methods) {
         if (!methods) {
             methods = 'all create get update delete';
         }
         methods = methods.split(' ');
 
-        var resource = target[name] = {};
-
-        var methodName;
-        for (var i = 0; i < methods.length; i++) {
-            methodName = methods[i];
-            if ($methods.hasOwnProperty(methodName)) {
-                resource[methodName] = $methods[methodName](name);
+        var name = options.name;
+        if (name) { // if resource was defined
+            var methodName;
+            for (var i = 0; i < methods.length; i++) {
+                methodName = methods[i];
+                if ($methods.hasOwnProperty(methodName)) {
+                    if(options.syntax === 'camel') {
+                        switch(methodName) {
+                            case 'all':
+                                target['find' + capitalize(name)] = $methods[methodName](name);
+                                break;
+                            case 'create':
+                            case 'update':
+                            case 'get':
+                            case 'delete':
+                                target[methodName + capitalize(singularize(name))] = $methods[methodName](name);
+                                break;
+                            default:
+                                target[methodName + capitalize(name)] = $methods[methodName](name);
+                        }
+                    } else {
+                        target[name] = target[name] || {};
+                        target[name][methodName] = $methods[methodName](name);
+                    }
+                }
             }
+        } else { // otherwise we place it on the global namespace
+
         }
+
     };
 })();

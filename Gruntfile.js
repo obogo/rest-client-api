@@ -12,7 +12,8 @@ module.exports = function (grunt) {
         banner: '/*\n' +
             '* <%= rest.name %> v.<%= rest.version %>\n' +
             '*/\n' +
-        '(function() {\n',
+        '(function() {\n' +
+        'var exports = {};\n',
         footer: '\n})();',
         jshint: {
             // define the files to lint
@@ -73,6 +74,10 @@ module.exports = function (grunt) {
                         {
                             match: 'resources',
                             replacement: '<%= rest.resources %>'
+                        },
+                        {
+                            match: 'baseUrl',
+                            replacement: '<%= rest.baseUrl %>'
                         }
                     ]
                 },

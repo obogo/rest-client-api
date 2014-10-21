@@ -74,10 +74,12 @@ var resource = (function () {
             url += this.$$parent.$$toUrl();
         }
 
-        if (this.$$baseUrl) {
+        if (typeof this.$$baseUrl === 'string') {
             url = this.$$baseUrl;
         } else {
-            url += '/' + this.$$name;
+            if(this.$$name) {
+                url += '/' + this.$$name;
+            }
             if (this.$$id) {
                 url += '/' + this.$$id;
             }

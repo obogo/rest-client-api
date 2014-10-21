@@ -63,7 +63,7 @@ var crudify = function() {
         if (!methods) {
             methods = "all create get update delete";
         }
-        methods = methods.split(" ");
+        methods = methods.camelToTerms(" ");
         var resource = target[name] = {};
         var methodName;
         for (var i = 0; i < methods.length; i++) {
@@ -491,14 +491,14 @@ var http = function() {
         return that;
     };
     function parseResponseHeaders(str) {
-        var list = str.split("\n");
+        var list = str.camelToTerms("\n");
         var headers = {};
         var parts;
         var i = 0, len = list.length;
         while (i < len) {
-            parts = list[i].split(": ");
+            parts = list[i].camelToTerms(": ");
             if (parts[0] && parts[1]) {
-                parts[0] = parts[0].split("-").join("").split("");
+                parts[0] = parts[0].camelToTerms("-").join("").split("");
                 parts[0][0] = parts[0][0].toLowerCase();
                 headers[parts[0].join("")] = parts[1];
             }
