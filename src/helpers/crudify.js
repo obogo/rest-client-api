@@ -108,14 +108,20 @@ var crudify = (function () {
                 if ($methods.hasOwnProperty(methodName)) {
                     if(options.syntax === 'camel') {
                         switch(methodName) {
-                            case 'all':
+                            case 'all': // getResources
                                 target['find' + capitalize(name)] = $methods[methodName](name);
                                 break;
-                            case 'create':
-                            case 'update':
-                            case 'get':
-                            case 'delete':
+                            case 'create': // createResource
+                            case 'update': // updateResource
+                            case 'get': // getResource
+                            case 'delete': // deleteResource
                                 target[methodName + capitalize(singularize(name))] = $methods[methodName](name);
+                                break;
+                            case 'count': // getResourceCount
+                                target['get' + capitalize(singularize(name)) + 'Count'] = $methods.get(name);
+                                break;
+                            case 'exists': // getResourceExists
+                                target['get' + capitalize(singularize(name)) + 'Exists'] = $methods.get(name);
                                 break;
                             default:
                                 target[methodName + capitalize(name)] = $methods[methodName](name);
