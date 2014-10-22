@@ -21,7 +21,7 @@ var resource = (function () {
         this.$$id = id;
         this.$$name = name;
         this.$$parent = null;
-        this.$$params = {};
+        this.$$params = null;
     }
 
     Resource.prototype.id = function (id) {
@@ -45,6 +45,7 @@ var resource = (function () {
             if (typeof arguments[1] === 'undefined') {
                 delete this.$$params[arguments[0]];
             } else {
+                this.$$params = this.$$params || {};
                 this.$$params[arguments[0]] = arguments[1];
             }
         } else if (typeof params === 'object') {
@@ -53,6 +54,7 @@ var resource = (function () {
                     if (typeof params[e] === 'undefined') {
                         delete this.$$params[e];
                     } else {
+                        this.$$params = this.$$params || {};
                         this.$$params[e] = params[e];
                     }
                 }

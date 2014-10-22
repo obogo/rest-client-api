@@ -7,13 +7,29 @@
 <body>
 <script src="../build/myapi.js"></script>
 <script>
-    myapi.users.all({name: 'rob'})
+//    myapi.users.all({name: 'rob'})
+//            .error(function (response) {
+//                console.log('error', response);
+//            })
+//            .success(function (response) {
+//                console.log('success', response.status, response.data);
+//            });
+
+    myapi.users.exists({name: 'rob'})
             .error(function (response) {
                 console.log('error', response);
             })
             .success(function (response) {
                 console.log('success', response.status, response.data);
             });
+
+//    myapi.me({name: 'rob'})
+//            .error(function (response) {
+//                console.log('error', response);
+//            })
+//            .success(function (response) {
+//                console.log('success', response.status, response.data);
+//            });
 </script>
 </body>
 </html>

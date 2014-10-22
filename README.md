@@ -58,12 +58,11 @@ This config will result in the following API being created...
 	myapi.logout();
 	myapi.me();
 	
-	name: "favs",
+	*name: "favs",
 	methodName: "getFav"
-	type: "GET",
-	syntax: "caml",
+	*type: "GET",
+	*syntax: "caml",
 	pattern: "/users/:userId/favs/:favsId"	
-	=> myapi.getFav() // caches for 60 seconds
 	
 
 	
