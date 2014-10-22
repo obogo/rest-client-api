@@ -14,7 +14,7 @@ var crudify = (function () {
             var deferred = defer();
             http.get(url, function (response) {
                 deferred.resolve(response);
-                exports.dispatch(name + '::all', response);
+                exports.fire(name + '::all', response);
             });
             return deferred.promise;
         };
@@ -26,7 +26,7 @@ var crudify = (function () {
             var deferred = defer();
             http.post(url, data, function (response) {
                 deferred.resolve(response);
-                exports.dispatch(name + '::create', response);
+                exports.fire(name + '::create', response);
             });
             return deferred.promise;
         };
@@ -38,7 +38,7 @@ var crudify = (function () {
             var deferred = defer();
             http.get(url, function (response) {
                 deferred.resolve(response);
-                exports.dispatch(name + '::get', response);
+                exports.fire(name + '::get', response);
             });
             return deferred.promise;
         };
@@ -50,7 +50,7 @@ var crudify = (function () {
             var deferred = defer();
             http.put(url, data, function (response) {
                 deferred.resolve(response);
-                exports.dispatch(name + '::update', response);
+                exports.fire(name + '::update', response);
             });
             return deferred.promise;
         };
@@ -62,7 +62,7 @@ var crudify = (function () {
             var deferred = defer();
             http.delete(url, function (response) {
                 deferred.resolve(response);
-                exports.dispatch(name + '::delete', response);
+                exports.fire(name + '::delete', response);
             });
             return deferred.promise;
         };
@@ -74,7 +74,7 @@ var crudify = (function () {
             var deferred = defer();
             http.get(url, function (response) {
                 deferred.resolve(response);
-                exports.dispatch(name + '::count', response);
+                exports.fire(name + '::count', response);
             });
             return deferred.promise;
         };
@@ -87,7 +87,7 @@ var crudify = (function () {
             var deferred = defer();
             http.get(url, function (response) {
                 deferred.resolve(response);
-                exports.dispatch(name + '::count', response);
+                exports.fire(name + '::count', response);
             });
             return deferred.promise;
         };
@@ -106,22 +106,38 @@ var crudify = (function () {
             for (i = 0; i < methods.length; i++) {
                 methodName = methods[i];
                 if ($methods.hasOwnProperty(methodName)) {
-                    if(options.syntax === 'camel') {
-                        switch(methodName) {
-                            case 'all': // getResources
-                                target['find' + capitalize(name)] = $methods[methodName](name);
+                    if (options.syntax === 'camel') {
+                        switch (methodName) {
+                            case 'all':     // getResources
+                                if(options.methods && options.methods.hasOwnProperty(methodName)) {
+                                    target[options.methods[methodName].name] = $methods[methodName](name);
+                                } else {
+                                    target['get' + capitalize(name)] = $methods[methodName](name);
+                                }
                                 break;
-                            case 'create': // createResource
-                            case 'update': // updateResource
-                            case 'get': // getResource
-                            case 'delete': // deleteResource
-                                target[methodName + capitalize(singularize(name))] = $methods[methodName](name);
+                            case 'create':  // createResource
+                            case 'update':  // updateResource
+                            case 'get':     // getResource
+                            case 'delete':  // deleteResource
+                                if(options.methods && options.methods.hasOwnProperty(methodName)) {
+                                    target[options.methods[methodName].name] = $methods[methodName](name);
+                                } else {
+                                    target[methodName + capitalize(singularize(name))] = $methods[methodName](name);
+                                }
                                 break;
-                            case 'count': // getResourceCount
-                                target['get' + capitalize(singularize(name)) + 'Count'] = $methods.get(name);
+                            case 'count':   // getResourceCount
+                                if(options.methods && options.methods.hasOwnProperty(methodName)) {
+                                    target[options.methods[methodName].name] = $methods[methodName](name);
+                                } else {
+                                    target['get' + capitalize(singularize(name)) + 'Count'] = $methods.get(name);
+                                }
                                 break;
-                            case 'exists': // getResourceExists
-                                target['get' + capitalize(singularize(name)) + 'Exists'] = $methods.get(name);
+                            case 'exists':  // getResourceExists
+                                if(options.methods && options.methods.hasOwnProperty(methodName)) {
+                                    target[options.methods[methodName].name] = $methods[methodName](name);
+                                } else {
+                                    target['get' + capitalize(singularize(name)) + 'Exists'] = $methods.get(name);
+                                }
                                 break;
                             default:
                                 target[methodName + capitalize(name)] = $methods[methodName](name);
@@ -135,22 +151,24 @@ var crudify = (function () {
         } else { // otherwise we place it on the global namespace
             var method;
             methods = options.methods;
-            for (i = 0; i < methods.length; i++) {
-                method = methods[i];
-//                console.log('####method####', methodName);
-                switch(method.type.toUpperCase()) {
-                    case 'POST':
-                        exports[method.name] = $methods.create(method.name);
-                        break;
-                    case 'GET':
-                        exports[method.name] = $methods.all(method.name);
-                        break;
-                    case 'PUT':
-                        exports[method.name] = $methods.update(method.name);
-                        break;
-                    case 'DELETE':
-                        exports[method.name] = $methods.delete(method.name);
-                        break;
+//            for (i = 0; i < methods.length; i++) {
+            for (var methodName in methods) {
+                if (methods.hasOwnProperty(methodName)) {
+                    method = methods[methodName];
+                    switch (method.type.toUpperCase()) {
+                        case 'POST':
+                            exports[methodName] = $methods.create(methodName);
+                            break;
+                        case 'GET':
+                            exports[methodName] = $methods.all(methodName);
+                            break;
+                        case 'PUT':
+                            exports[methodName] = $methods.update(methodName);
+                            break;
+                        case 'DELETE':
+                            exports[methodName] = $methods.delete(methodName);
+                            break;
+                    }
                 }
             }
         }
