@@ -78,6 +78,10 @@ module.exports = function (grunt) {
                         {
                             match: 'baseUrl',
                             replacement: '<%= rest.baseUrl %>'
+                        },
+                        {
+                            match: 'withCredentials',
+                            replacement: '<%= rest.headers.withCredentials %>'
                         }
                     ]
                 },

@@ -7,29 +7,48 @@
 <body>
 <script src="../build/myapi.js"></script>
 <script>
-//    myapi.users.all({name: 'rob'})
-//            .error(function (response) {
-//                console.log('error', response);
-//            })
-//            .success(function (response) {
-//                console.log('success', response.status, response.data);
-//            });
 
-    myapi.users.exists({name: 'rob'})
+
+    myapi.login({email: 'flashext@gmail.com', password: 'password'})
+            .success(function (response) {
+                console.log('login::success', response);
+
+                myapi.apps.all({ limit: 10, skip: 10 }).success(function (response) {
+                    console.log('apps::success', response);
+                });
+
+//                myapi.getApps({ limit: 10, skip: 10 }).success(function (response) {
+//                    console.log('apps::success', response);
+//                });
+
+            })
             .error(function (response) {
                 console.log('error', response);
-            })
-            .success(function (response) {
-                console.log('success', response.status, response.data);
             });
 
-//    myapi.me({name: 'rob'})
-//            .error(function (response) {
-//                console.log('error', response);
-//            })
-//            .success(function (response) {
-//                console.log('success', response.status, response.data);
-//            });
+    //    myapi.users.all({name: 'rob'})
+    //            .error(function (response) {
+    //                console.log('error', response);
+    //            })
+    //            .success(function (response) {
+    //                console.log('success', response.status, response.data);
+    //            });
+
+    //    myapi.users.exists({ appId: 123, name: 'rob' })
+    //            .error(function (response) {
+    //                console.log('error', response);
+    //            })
+    //            .success(function (response) {
+    //                console.log('success', response.status, response.data);
+    //            });
+
+    //    myapi.me({name: 'rob'})
+    //            .error(function (response) {
+    //                console.log('error', response);
+    //            })
+    //            .success(function (response) {
+    //                console.log('success', response.status, response.data);
+    //            });
 </script>
 </body>
 </html>

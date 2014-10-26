@@ -1,6 +1,22 @@
 /* global utils */
 var resource = (function () {
     // https://gist.github.com/pduey/2764606
+
+    function clone(hash) {
+        return JSON.parse(JSON.stringify(hash));
+    }
+
+    function parseUrl(url, hash) {
+        for (var e in hash) {
+            var regExp = new RegExp(':(' + e + ')\\b', 'g');
+            if (regExp.test(url)) {
+                url = url.replace(regExp, hash[e]);
+                delete hash[e];
+            }
+        }
+        return url;
+    }
+
     function hashToSearch(hash) {
         var search = hash ? '?' : '';
         for (var k in hash) {
@@ -79,7 +95,7 @@ var resource = (function () {
         if (typeof this.$$baseUrl === 'string') {
             url = this.$$baseUrl;
         } else {
-            if(this.$$name) {
+            if (this.$$name) {
                 url += '/' + this.$$name;
             }
             if (this.$$id) {
@@ -95,7 +111,9 @@ var resource = (function () {
         var url = this.$$toUrl();
 
         if (this.$$params) {
-            url += hashToSearch(this.$$params);
+            var params = clone(this.$$params);
+            url = parseUrl(url, params);
+            url += hashToSearch(params);
         }
 
         return url;
