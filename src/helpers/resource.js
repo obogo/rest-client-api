@@ -35,7 +35,9 @@ var resource = (function () {
 
     function Resource(name, id) {
         this.$$id = id;
-        this.$$name = name;
+        if(typeof name === 'string') {
+            this.$$name = name.replace(/^\/?(.*?)\/?$/, '$1'); // strip any '/' a the start or end of name
+        }
         this.$$parent = null;
         this.$$params = null;
     }

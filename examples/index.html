@@ -16,6 +16,10 @@
 //                    console.log('apps::success', response);
 //                });
 
+                myapi.getTeammates({appId: "5436a327546d223c4f628098"}).success(function(response){
+                    console.log('teammates', response);
+                });
+
                 myapi.getApps({limit: 10, skip: 10}).success(function (response) {
                     console.log('apps::success', response);
 

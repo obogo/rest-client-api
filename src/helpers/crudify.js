@@ -4,9 +4,19 @@ var crudify = (function () {
     var $baseUrl = "!!baseUrl";
     var $methods = {};
 
-    function capitalize(string) {
-        return string.charAt(0).toUpperCase() + string.slice(1);
-    }
+    var capitalize = function (str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    };
+
+    var trimSlashes = function (str) {
+        return str.replace(/^\/?(.*?)\/?$/, '$1');
+    };
+
+    var singularizeCapitalize = function(str) {
+        str = singularize(str);
+        str = capitalize(str);
+        return str;
+    };
 
     $methods.all = function (name) {
         return function (params) {
@@ -88,7 +98,6 @@ var crudify = (function () {
         };
     };
 
-
     $methods.exists = function (name) {
         return function (params) {
             var deferred = defer();
@@ -112,7 +121,11 @@ var crudify = (function () {
         var i;
         var methodName;
         if (name) { // if resource was defined
-            name = name.replace(/^\/?(.*?)\/?$/, '$1');
+            // remove extra slashes
+            name = trimSlashes(name);
+            // format url
+            var url = trimSlashes(options.url || '') || name;
+            // loop through methods and set them up
             for (i = 0; i < methods.length; i++) {
                 methodName = methods[i];
                 if ($methods.hasOwnProperty(methodName)) {
@@ -120,9 +133,9 @@ var crudify = (function () {
                         switch (methodName) {
                             case 'all':     // getResources
                                 if (options.methods && options.methods.hasOwnProperty(methodName)) {
-                                    target[options.methods[methodName].name] = $methods[methodName](name);
+                                    target[options.methods[methodName].name] = $methods[methodName](url);
                                 } else {
-                                    target['get' + capitalize(name)] = $methods[methodName](name);
+                                    target['get' + capitalize(name)] = $methods[methodName](url);
                                 }
                                 break;
                             case 'create':  // createResource
@@ -130,33 +143,31 @@ var crudify = (function () {
                             case 'get':     // getResource
                             case 'delete':  // deleteResource
                                 if (options.methods && options.methods.hasOwnProperty(methodName)) {
-                                    target[options.methods[methodName].name] = $methods[methodName](name);
+                                    target[options.methods[methodName].name] = $methods[methodName](url);
                                 } else {
-                                    target[methodName + capitalize(singularize(name))] = $methods[methodName](name);
+                                    target[methodName + singularizeCapitalize(name)] = $methods[methodName](url);
                                 }
                                 break;
                             case 'count':   // getResourceCount
                                 if (options.methods && options.methods.hasOwnProperty(methodName)) {
                                     target[options.methods[methodName].name] = $methods[methodName](name);
                                 } else {
-                                    target['get' + capitalize(singularize(name)) + 'Count'] = $methods.get(name);
+                                    target['get' + singularizeCapitalize(name) + 'Count'] = $methods.get(url);
                                 }
                                 break;
                             case 'exists':  // getResourceExists
                                 if (options.methods && options.methods.hasOwnProperty(methodName)) {
                                     target[options.methods[methodName].name] = $methods[methodName](name);
                                 } else {
-                                    target['get' + capitalize(singularize(name)) + 'Exists'] = $methods.get(name);
+                                    target['get' + singularizeCapitalize(name) + 'Exists'] = $methods.get(url);
                                 }
                                 break;
                             default:
-                                target[methodName + capitalize(name)] = $methods[methodName](name);
+                                target[methodName + capitalize(name)] = $methods[methodName](url);
                         }
                     } else {
-                        var uri = options.uri || '';
-                        uri = uri.replace(/^\/?(.*?)\/?$/, '$1');// + '/';
                         target[name] = target[name] || {};
-                        target[name][methodName] = $methods[methodName](uri + name);
+                        target[name][methodName] = $methods[methodName](url);
                     }
                 }
             }
