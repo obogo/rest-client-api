@@ -1,4 +1,4 @@
-/* global resource, defer, http, crudify, exports, singularize, withCredentials */
+/* global resource, defer, http, exports, singularize, withCredentials */
 var crudify = (function () {
 
     var $baseUrl = "!!baseUrl";
@@ -110,8 +110,9 @@ var crudify = (function () {
 
         var name = options.name;
         var i;
+        var methodName;
         if (name) { // if resource was defined
-            var methodName;
+            name = name.replace(/^\/?(.*?)\/?$/, '$1');
             for (i = 0; i < methods.length; i++) {
                 methodName = methods[i];
                 if ($methods.hasOwnProperty(methodName)) {
@@ -162,7 +163,7 @@ var crudify = (function () {
         } else { // otherwise we place it on the global namespace
             var method;
             methods = options.methods;
-            for (var methodName in methods) {
+            for (methodName in methods) {
                 if (methods.hasOwnProperty(methodName)) {
                     method = methods[methodName];
                     switch (method.type.toUpperCase()) {

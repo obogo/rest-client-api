@@ -1,6 +1,7 @@
 module.exports = function (grunt) {
 
     var tasks = [
+        'jshint',
         'uglify', // minify js
         'replace', // replace
         'clean' // cleanup .tmp
@@ -17,16 +18,16 @@ module.exports = function (grunt) {
         footer: '\n})();',
         jshint: {
             // define the files to lint
-            files: ['scripts/**/*.js'],
+            files: [
+                'src/helpers/*.js',
+                'src/bootstrap.js'
+            ],
             // configure JSHint (documented at http://www.jshint.com/docs/)
             options: {
                 // more options here if you want to override JSHint defaults
                 globals: {
                     loopfunc: false
-                },
-                ignores: [
-                    'scripts/libs/**/*.js'
-                ]
+                }
             }
         },
         uglify: {
