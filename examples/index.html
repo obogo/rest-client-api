@@ -7,31 +7,35 @@
 <body>
 <script src="../build/myapi.js"></script>
 <script>
+    debugger;
 
-    myapi.login({email: 'flashext@gmail.com', password: 'password'})
-            .success(function (response) {
-                console.log('login::success', response);
+    myapi.geoip.get().success(function(response){
+        console.log('geoip', response);
+    });
 
-//                myapi.apps.all({ limit: 10, skip: 10 }).success(function (response) {
-//                    console.log('apps::success', response);
+//    myapi.login({email: 'flashext@gmail.com', password: 'password'})
+//            .success(function (response) {
+//                console.log('login::success', response);
+////                myapi.apps.all({ limit: 10, skip: 10 }).success(function (response) {
+////                    console.log('apps::success', response);
+////                });
+//
+//                myapi.getTeammates({appId: "5436a327546d223c4f628098"}).success(function(response){
+//                    console.log('teammates', response);
 //                });
-
-                myapi.getTeammates({appId: "5436a327546d223c4f628098"}).success(function(response){
-                    console.log('teammates', response);
-                });
-
-                myapi.getApps({limit: 10, skip: 10}).success(function (response) {
-                    console.log('apps::success', response);
-
-                    myapi.logout().success(function(response){
-                        console.log('logout', response);
-                    });
-                });
-
-            })
-            .error(function (response) {
-                console.log('error', response);
-            });
+//
+//                myapi.getApps({limit: 10, skip: 10}).success(function (response) {
+//                    console.log('apps::success', response);
+//
+//                    myapi.logout().success(function(response){
+//                        console.log('logout', response);
+//                    });
+//                });
+//
+//            })
+//            .error(function (response) {
+//                console.log('error', response);
+//            });
 
 </script>
 </body>

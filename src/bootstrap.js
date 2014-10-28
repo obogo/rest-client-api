@@ -8,7 +8,7 @@ dispatcher(exports);
 
 var resources = !!resources;
 for (var i = 0; i < resources.length; i += 1) {
-    crudify(exports, resources[i], resources.methods);
+    crudify(exports, resources[i], resources[i].methods);
 }
 
 window['!!name'] = exports;

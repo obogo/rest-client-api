@@ -1,0 +1,55 @@
+{
+    "name": "obogo",
+    "version": "1.0.0",
+    "baseUrl": "http://localhost:3000/v1",
+    "headers": {
+      "withCredentials": true
+    },
+    "angular": true,
+    "resources": [
+        {
+            "methods": {
+                "login": {
+                    "type": "POST"
+                },
+                "logout": {
+                    "type": "GET"
+                },
+                "me": {
+                    "type": "GET"
+                }
+            }
+        },
+        {
+            "name": "geoip",
+            "methods": "get",
+            "baseUrl": "http://www.telize.com/geoip",
+            "syntax": "dot"
+        },
+        {
+            "name": "users",
+            "url": "/apps/:appId/users"
+        },
+        {
+            "name": "apps",
+            "syntax": "dot"
+        },
+        {
+            "name": "teammates",
+            "syntax": "dot",
+            "url": "/apps/:appId/team"
+        },
+        {
+            "name": "favs",
+            "syntax": "dot",
+            "methods": {
+                "all": {
+                    "name": "getFavorites",
+                    "baseUrl": "",
+                    "uri": "",
+                    "pattern": "filters"
+                }
+            }
+        }
+    ]
+}

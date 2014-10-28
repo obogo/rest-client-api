@@ -13,7 +13,7 @@ var crudify = (function () {
     };
 
     var singularizeCapitalize = function(str) {
-        str = singularize(str);
+        str = singularize(str) || str;
         str = capitalize(str);
         return str;
     };
@@ -111,11 +111,17 @@ var crudify = (function () {
         };
     };
 
-    return function (target, options, methods) {
+    return function (target, options) {
+
+        var methods = options.methods;
         if (!methods) {
             methods = 'all create get update delete exists count';
         }
-        methods = methods.split(' ');
+
+        if(typeof methods === 'string') {
+            methods = methods.split(' ');
+        }
+        console.log('methods', options.name, methods);
 
         var name = options.name;
         var i;
@@ -124,7 +130,8 @@ var crudify = (function () {
             // remove extra slashes
             name = trimSlashes(name);
             // format url
-            var url = trimSlashes(options.url || '') || name;
+            var baseUrl = trimSlashes(options.baseUrl || '') + '/';
+            var url = baseUrl + trimSlashes(options.url || '') || name;
             // loop through methods and set them up
             for (i = 0; i < methods.length; i++) {
                 methodName = methods[i];

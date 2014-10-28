@@ -124,7 +124,7 @@ var resource = (function () {
     return function (name, id) {
         var resource;
         if (typeof name === 'object') {
-            resource = new Resource();
+            resource = new Resource(name.name, name.id);
             resource.$$baseUrl = name.baseUrl;
         } else {
             resource = new Resource(name, id);
