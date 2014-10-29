@@ -5,37 +5,58 @@
     <title></title>
 </head>
 <body>
-<script src="../build/myapi.js"></script>
+<script src="../build/obogo.js"></script>
+<!--<script src="https://rawgit.com/obogo/rest-client-api/master/build/obogo.js"></script>-->
 <script>
-    debugger;
+//    myapi.geoip.get().success(function(response){
+//        console.log('geoip', response);
+//    });
 
-    myapi.geoip.get().success(function(response){
-        console.log('geoip', response);
-    });
+    obogo.login({email: 'obogo1@mailinator.com', password: 'password'})
+            .success(function (response) {
+                console.log('login::success', response);
+                obogo.apps.all({ limit: 10, skip: 10 }).success(function (response) {
+                    console.log('apps::success', response);
+                });
 
-//    myapi.login({email: 'flashext@gmail.com', password: 'password'})
-//            .success(function (response) {
-//                console.log('login::success', response);
-////                myapi.apps.all({ limit: 10, skip: 10 }).success(function (response) {
-////                    console.log('apps::success', response);
-////                });
-//
-//                myapi.getTeammates({appId: "5436a327546d223c4f628098"}).success(function(response){
-//                    console.log('teammates', response);
+                obogo.teammates.all({appId: "54502b0c0a47357c4c3b505d"}).success(function(response){
+                    console.log('teammates', response);
+                });
+
+
+//                obogo.teammates.create({
+//                    name: 'Rob Taylor',
+//                    email: 'flashext@gmail.com'
+//                }, {
+//                    appId: "54502b0c0a47357c4c3b505d"
+//                }).success(function(response){
+//                    console.log('teammate::created', response);
 //                });
-//
-//                myapi.getApps({limit: 10, skip: 10}).success(function (response) {
+
+//                obogo.apps.all({limit: 10, skip: 10}).success(function (response) {
 //                    console.log('apps::success', response);
 //
-//                    myapi.logout().success(function(response){
+//                    obogo.logout().success(function(response){
 //                        console.log('logout', response);
 //                    });
 //                });
+
+//                obogo.apps.get("544fa218be76aaed11fba692").success(function(response){
+//                    console.log('app::success', response);
+//                });
 //
-//            })
-//            .error(function (response) {
-//                console.log('error', response);
-//            });
+//                obogo.apps.delete('544fa218be76aaed11fba692').success(function(response){
+//                    console.log('app::deleted', response);
+//                });
+
+//                obogo.apps.create({ name: 'Neon Lights'}).success(function(response){
+//                    console.log('app::created', response);
+//                });
+
+            })
+            .error(function (response) {
+                console.log('error', response);
+            });
 
 </script>
 </body>

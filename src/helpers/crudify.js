@@ -121,7 +121,6 @@ var crudify = (function () {
         if(typeof methods === 'string') {
             methods = methods.split(' ');
         }
-        console.log('methods', options.name, methods);
 
         var name = options.name;
         var i;
@@ -130,8 +129,9 @@ var crudify = (function () {
             // remove extra slashes
             name = trimSlashes(name);
             // format url
-            var baseUrl = trimSlashes(options.baseUrl || '') + '/';
-            var url = baseUrl + trimSlashes(options.url || '') || name;
+            var baseUrl = trimSlashes(options.baseUrl || '');
+            var resourceName = trimSlashes(options.url || '') || name;
+            var url = baseUrl + '/' + resourceName;
             // loop through methods and set them up
             for (i = 0; i < methods.length; i++) {
                 methodName = methods[i];

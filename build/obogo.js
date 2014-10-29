@@ -125,14 +125,14 @@ var crudify = function() {
         if (typeof methods === "string") {
             methods = methods.split(" ");
         }
-        console.log("methods", options.name, methods);
         var name = options.name;
         var i;
         var methodName;
         if (name) {
             name = trimSlashes(name);
-            var baseUrl = trimSlashes(options.baseUrl || "") + "/";
-            var url = baseUrl + trimSlashes(options.url || "") || name;
+            var baseUrl = trimSlashes(options.baseUrl || "");
+            var resourceName = trimSlashes(options.url || "") || name;
+            var url = baseUrl + "/" + resourceName;
             for (i = 0; i < methods.length; i++) {
                 methodName = methods[i];
                 if ($methods.hasOwnProperty(methodName)) {
@@ -1030,7 +1030,7 @@ http.defaults.headers["Content-Type"] = "application/json;charset=UTF-8";
 
 dispatcher(exports);
 
-var resources = [{"methods":{"login":{"type":"POST"},"logout":{"type":"GET"},"me":{"type":"GET"}}},{"name":"users","url":"/apps/:appId/users"},{"name":"apps","syntax":"dot"},{"name":"teammates","syntax":"dot","url":"/apps/:appId/team"}];
+var resources = [{"methods":{"login":{"type":"POST"},"logout":{"type":"GET"},"me":{"type":"GET"}}},{"name":"users","url":"/apps/:appId/users"},{"name":"apps"},{"name":"teammates","syntax":"dot","url":"/apps/:appId/team"}];
 
 for (var i = 0; i < resources.length; i += 1) {
     crudify(exports, resources[i], resources[i].methods);
