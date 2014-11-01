@@ -17,6 +17,25 @@ var crudify = function() {
         str = capitalize(str);
         return str;
     };
+    var requireParam = function(key, value) {
+        if (typeof value === "undefined") {
+            throw new Error("Expected param " + key + " to be defined: " + JSON.stringify(value));
+        }
+    };
+    var requireId = function(value) {
+        requireParam("id", value);
+        var type = typeof value;
+        if (!(type === "number" || type === "string")) {
+            throw new Error('Expected param "id" to be "number" or "string": ' + JSON.stringify(value));
+        }
+    };
+    var requireData = function(value) {
+        requireParam("data", value);
+        var type = typeof value;
+        if (type !== "object") {
+            throw new Error('Expected param "data" to be "object": ' + JSON.stringify(value));
+        }
+    };
     $methods.all = function(name) {
         return function(params) {
             var deferred = defer();
@@ -33,6 +52,7 @@ var crudify = function() {
     };
     $methods.create = function(name) {
         return function(data, params) {
+            requireData(data);
             var deferred = defer();
             var payload = {};
             payload.credentials = true;
@@ -48,6 +68,7 @@ var crudify = function() {
     };
     $methods.get = function(name) {
         return function(id, params) {
+            requireId(id);
             var deferred = defer();
             var payload = {};
             payload.credentials = true;
@@ -62,6 +83,8 @@ var crudify = function() {
     };
     $methods.update = function(name) {
         return function(id, data, params) {
+            requireId(id);
+            requireData(data);
             var deferred = defer();
             var payload = {};
             payload.credentials = true;
@@ -77,6 +100,7 @@ var crudify = function() {
     };
     $methods.delete = function(name) {
         return function(id, params) {
+            requireId(id);
             var deferred = defer();
             var payload = {};
             payload.credentials = true;
@@ -1030,7 +1054,7 @@ http.defaults.headers["Content-Type"] = "application/json;charset=UTF-8";
 
 dispatcher(exports);
 
-var resources = [{"methods":{"login":{"type":"POST"},"logout":{"type":"GET"},"me":{"type":"GET"}}},{"name":"users","url":"/apps/:appId/users"},{"name":"apps"},{"name":"teammates","syntax":"dot","url":"/apps/:appId/team"}];
+var resources = [{"methods":{"login":{"type":"POST"},"logout":{"type":"GET"},"me":{"type":"GET"}}},{"name":"users","url":"/apps/:appId/users"},{"name":"apps"},{"name":"teammates","syntax":"dot","url":"/apps/:appId/team","methods":"all create delete"},{"name":"activities","syntax":"dot","url":"/apps/:appId/activities"}];
 
 for (var i = 0; i < resources.length; i += 1) {
     crudify(exports, resources[i], resources[i].methods);
