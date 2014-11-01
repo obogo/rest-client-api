@@ -1054,7 +1054,7 @@ http.defaults.headers["Content-Type"] = "application/json;charset=UTF-8";
 
 dispatcher(exports);
 
-var resources = [{"methods":{"login":{"type":"POST"},"logout":{"type":"GET"},"me":{"type":"GET"}}},{"name":"users","url":"/apps/:appId/users"},{"name":"apps"},{"name":"teammates","syntax":"dot","url":"/apps/:appId/team","methods":"all create delete"},{"name":"activities","syntax":"dot","url":"/apps/:appId/activities"}];
+var resources = [{"methods":{"login":{"type":"POST"},"logout":{"type":"GET"},"me":{"type":"GET"}}},{"name":"users","url":"/apps/:appId/users"},{"name":"apps"},{"name":"teammates","syntax":"dot","url":"/apps/:appId/team","methods":"all create delete"},{"name":"activities","syntax":"dot","url":"/apps/:appId/activities"},{"name":"tags","syntax":"dot","url":"/apps/:appId/tags"}];
 
 for (var i = 0; i < resources.length; i += 1) {
     crudify(exports, resources[i], resources[i].methods);
