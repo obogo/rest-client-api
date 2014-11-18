@@ -581,7 +581,7 @@ var http = function() {
             xhr = win.XDomainRequest;
         }
         return xhr;
-    }(), methods = [ "head", "get", "post", "put", "delete" ], i = 0, methodsLength = methods.length, result = {};
+    }(), methods = [ "head", "get", "post", "put", "delete" ], i = 0, methodsLength = methods.length, result = {}, mockMode, mockRegistry = [];
     function Request(options) {
         this.init(options);
     }
@@ -678,11 +678,26 @@ var http = function() {
         }
         return options;
     }
+    function findAdapter(options) {
+        var i, len = mockRegistry.length, mock, result;
+        for (i = 0; i < len; i += 1) {
+            mock = mockRegistry[i];
+            if (mock.type === "string" || mock.type === "object") {
+                result = options.url.match(mock.matcher);
+            } else if (mock.type === "function") {
+                result = mock.matcher(options);
+            }
+            if (result) {
+                result = mock.adapter;
+            }
+        }
+        return result;
+    }
     for (i; i < methodsLength; i += 1) {
         (function() {
             var method = methods[i];
             result[method] = function(url, success) {
-                var options = {};
+                var options = {}, adapter, adapterResult;
                 if (url === undefined) {
                     throw new Error("CORS: url must be defined");
                 }
@@ -696,10 +711,33 @@ var http = function() {
                 }
                 options.method = method.toUpperCase();
                 addDefaults(options, result.defaults);
+                if (mockMode) {
+                    adapter = findAdapter(options);
+                    if (adapter) {
+                        adapterResult = adapter(options);
+                        if (adapterResult === true) {
+                            options.method = "GET";
+                            return new Request(options).xhr;
+                        }
+                        return adapterResult;
+                    } else if (window.console && console.warn) {
+                        console.warn("No adapter found for " + options.url + ". Adapter required in mock mode.");
+                    }
+                }
                 return new Request(options).xhr;
             };
         })();
     }
+    result.mock = function(enable) {
+        mockMode = !!enable;
+    };
+    result.registerMock = function(matcher, adapter) {
+        mockRegistry.push({
+            matcher: matcher,
+            type: typeof matcher,
+            adapter: adapter
+        });
+    };
     result.defaults = {
         headers: {}
     };
@@ -1053,6 +1091,10 @@ var resource = function() {
 http.defaults.headers["Content-Type"] = "application/json;charset=UTF-8";
 
 dispatcher(exports);
+
+exports.mock = http.mock;
+
+exports.registerMock = http.registerMock;
 
 var resources = [{"methods":{"login":{"type":"POST"},"logout":{"type":"GET"},"me":{"type":"GET"}}},{"name":"users","url":"/apps/:appId/users"},{"name":"apps"},{"name":"teammates","syntax":"dot","url":"/apps/:appId/team","methods":"all create delete"},{"name":"activities","syntax":"dot","url":"/apps/:appId/activities"},{"name":"tags","syntax":"dot","url":"/apps/:appId/tags"}];
 

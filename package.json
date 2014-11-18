@@ -10,7 +10,7 @@
     "grunt-contrib-clean": "~0.5.0",
     "grunt-contrib-concat": "~0.3.0",
     "grunt-contrib-copy": "~0.4.1",
-    "grunt-contrib-jshint": "~2.5.6 ",
+    "grunt-contrib-jshint": "latest",
     "grunt-contrib-less": "~0.11.1",
     "grunt-contrib-uglify": "~0.5.1",
     "grunt-ng-annotate": "^0.3.2",
