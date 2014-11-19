@@ -163,6 +163,7 @@ var http = (function () {
             }
             if (result) {
                 result = mock.adapter;
+                break;
             }
         }
         return result;

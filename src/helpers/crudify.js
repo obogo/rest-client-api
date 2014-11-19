@@ -214,23 +214,24 @@ var crudify = (function () {
                 }
             }
         } else { // otherwise we place it on the global namespace
-            var method;
+            var methodOptions, path;
             methods = options.methods;
             for (methodName in methods) {
                 if (methods.hasOwnProperty(methodName)) {
-                    method = methods[methodName];
-                    switch (method.type.toUpperCase()) {
+                    methodOptions = methods[methodName];
+                    path = methodOptions.url || methodName;
+                    switch (methodOptions.type.toUpperCase()) {
                         case 'POST':
-                            exports[methodName] = $methods.create(methodName);
+                            exports[methodName] = $methods.create(path);
                             break;
                         case 'GET':
-                            exports[methodName] = $methods.all(methodName);
+                            exports[methodName] = $methods.all(path);
                             break;
                         case 'PUT':
-                            exports[methodName] = $methods.update(methodName);
+                            exports[methodName] = $methods.update(path);
                             break;
                         case 'DELETE':
-                            exports[methodName] = $methods.delete(methodName);
+                            exports[methodName] = $methods.delete(path);
                             break;
                     }
                 }
