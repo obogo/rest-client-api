@@ -74,7 +74,7 @@ var http = (function () {
                 if (headers.contentType && headers.contentType.indexOf('application/json') !== -1) {
                     response = JSON.parse(response);
                 }
-                that.success.call(this, {
+                var result = {
                     data: response,
                     request: {
                         method: that.method,
@@ -84,7 +84,13 @@ var http = (function () {
                     },
                     headers: headers,
                     status: this.status
-                });
+                };
+
+                if(this.status >= 200 && this.status < 300) {
+                    that.success.call(this, result);
+                } else if (that.error !== undefined) {
+                    that.error.call(this, result);
+                }
             };
         }
 
