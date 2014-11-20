@@ -35,6 +35,25 @@ var http = (function () {
         this.init(options);
     }
 
+    function getRequestResult(that) {
+        var headers = parseResponseHeaders(this.getAllResponseHeaders());
+        var response = this.responseText;
+        if (headers.contentType && headers.contentType.indexOf('application/json') !== -1) {
+            response = response ? JSON.parse(response) : response;
+        }
+        return {
+            data: response,
+            request: {
+                method: that.method,
+                url: that.url,
+                data: that.data,
+                headers: that.headers
+            },
+            headers: headers,
+            status: this.status
+        };
+    }
+
     Request.prototype.init = function (options) {
         var that = this;
 
@@ -69,23 +88,7 @@ var http = (function () {
         // Success callback
         if (that.success !== undefined) {
             that.xhr.onload = function () {
-                var headers = parseResponseHeaders(this.getAllResponseHeaders());
-                var response = this.responseText;
-                if (headers.contentType && headers.contentType.indexOf('application/json') !== -1) {
-                    response = JSON.parse(response);
-                }
-                var result = {
-                    data: response,
-                    request: {
-                        method: that.method,
-                        url: that.url,
-                        data: that.data,
-                        headers: that.headers
-                    },
-                    headers: headers,
-                    status: this.status
-                };
-
+                var result = getRequestResult.call(this, that);
                 if(this.status >= 200 && this.status < 300) {
                     that.success.call(this, result);
                 } else if (that.error !== undefined) {
@@ -97,7 +100,8 @@ var http = (function () {
         // Error callback
         if (that.error !== undefined) {
             that.xhr.error = function () {
-                that.error.call(this, this.responseText);
+                var result = getRequestResult.call(this, that);
+                that.error.call(this, result);
             };
         }
 
