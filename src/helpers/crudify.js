@@ -19,25 +19,33 @@ var crudify = (function () {
     };
 
     var requireParam = function (key, value) {
-        if(typeof value === 'undefined') {
+        if (typeof value === 'undefined') {
             throw new Error('Expected param ' + key + ' to be defined: ' + JSON.stringify(value));
         }
     };
 
-    var requireId = function(value) {
+    var requireId = function (value) {
         requireParam('id', value);
         var type = typeof value;
-        if(!(type === 'number' || type === 'string')) {
+        if (!(type === 'number' || type === 'string')) {
             throw new Error('Expected param "id" to be "number" or "string": ' + JSON.stringify(value));
         }
     };
 
-    var requireData = function(value) {
+    var requireData = function (value) {
         requireParam('data', value);
         var type = typeof value;
-        if(type !== 'object') {
+        if (type !== 'object') {
             throw new Error('Expected param "data" to be "object": ' + JSON.stringify(value));
         }
+    };
+
+    var onSuccess = function (response) {
+        exports.fire('success', response);
+    };
+
+    var onError = function (response) {
+        exports.fire('error', response);
     };
 
     $methods.all = function (name) {
@@ -49,7 +57,12 @@ var crudify = (function () {
             payload.success = deferred.resolve;
             payload.error = deferred.reject;
             http.get(payload);
-            return deferred.promise;
+            var promise = deferred.promise;
+
+            promise.success(onSuccess);
+            promise.error(onError);
+
+            return promise;
         };
     };
 
@@ -66,7 +79,13 @@ var crudify = (function () {
             payload.success = deferred.resolve;
             payload.error = deferred.reject;
             http.post(payload);
-            return deferred.promise;
+
+            var promise = deferred.promise;
+
+            promise.success(onSuccess);
+            promise.error(onError);
+
+            return promise;
         };
     };
 
@@ -82,7 +101,13 @@ var crudify = (function () {
             payload.success = deferred.resolve;
             payload.error = deferred.reject;
             http.get(payload);
-            return deferred.promise;
+
+            var promise = deferred.promise;
+
+            promise.success(onSuccess);
+            promise.error(onError);
+
+            return promise;
         };
     };
 
@@ -100,7 +125,12 @@ var crudify = (function () {
             payload.success = deferred.resolve;
             payload.error = deferred.reject;
             http.put(payload);
-            return deferred.promise;
+            var promise = deferred.promise;
+
+            promise.success(onSuccess);
+            promise.error(onError);
+
+            return promise;
         };
     };
 
@@ -116,7 +146,13 @@ var crudify = (function () {
             payload.success = deferred.resolve;
             payload.error = deferred.reject;
             http.delete(payload);
-            return deferred.promise;
+
+            var promise = deferred.promise;
+
+            promise.success(onSuccess);
+            promise.error(onError);
+
+            return promise;
         };
     };
 
@@ -129,7 +165,13 @@ var crudify = (function () {
             payload.success = deferred.resolve;
             payload.error = deferred.reject;
             http.get(payload);
-            return deferred.promise;
+
+            var promise = deferred.promise;
+
+            promise.success(onSuccess);
+            promise.error(onError);
+
+            return promise;
         };
     };
 
@@ -142,7 +184,13 @@ var crudify = (function () {
             payload.success = deferred.resolve;
             payload.error = deferred.reject;
             http.get(payload);
-            return deferred.promise;
+
+            var promise = deferred.promise;
+
+            promise.success(onSuccess);
+            promise.error(onError);
+
+            return promise;
         };
     };
 

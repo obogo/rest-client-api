@@ -12,11 +12,13 @@
 //        console.log('geoip', response);
 //    });
     obogo.mock(true);
+
     // an example of making the mock call a url.
     obogo.registerMock(/login/i, function (options) {
         options.url = "mocks/login.json";
         return true;// as long
     });
+
     // an example of using a function so you can control the mock data.
     obogo.registerMock(/login/i, function(options) {
         setTimeout(function () {
@@ -29,6 +31,7 @@
             });
         });
     });
+
     obogo.login({email: 'obogo1@mailinator.com', password: 'password'})
             .success(function (response) {
                 console.log('login::success', response);

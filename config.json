@@ -1,47 +1,43 @@
 {
-    "name": "obogo",
+    "name": "insights",
     "version": "1.0.0",
     "baseUrl": "http://localhost:3000/v1",
     "headers": {
-      "withCredentials": true
+        "withCredentials": true
     },
-    "angular": true,
     "resources": [
         {
             "methods": {
                 "login": {
-                    "type": "POST"
+                    "type": "POST",
+                    "url": "/session/login"
                 },
                 "logout": {
-                    "type": "GET"
+                    "type": "GET",
+                    "url": "/session/logout"
                 },
-                "me": {
-                    "type": "GET"
+                "getAuthUser": {
+                    "type": "GET",
+                    "url": "/session/me"
+                },
+                "getIP": {
+                    "type": "GET",
+                    "url": "//api.ipify.org?format=jsonp"
+                },
+                "getInvitee": {
+                    "type": "GET",
+                    "url": "sites/invite/:id"
                 }
             }
         },
         {
-            "name": "users",
-            "url": "/apps/:appId/users"
+            "name": "persons"
         },
         {
-            "name": "apps"
+            "name": "sites"
         },
         {
-            "name": "teammates",
-            "syntax": "dot",
-            "url": "/apps/:appId/team",
-            "methods": "all create delete"
-        },
-        {
-            "name": "activities",
-            "syntax": "dot",
-            "url": "/apps/:appId/activities"
-        },
-        {
-            "name": "tags",
-            "syntax": "dot",
-            "url": "/apps/:appId/tags"
+            "name": "faker"
         }
     ]
 }
