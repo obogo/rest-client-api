@@ -100,12 +100,12 @@ var dispatcher = function (target, scope, map) {
         target.on = scope[map.on] && scope[map.on].bind(scope);
         target.off = scope[map.off] && scope[map.off].bind(scope);
         target.once = scope[map.once] && scope[map.once].bind(scope);
-        target.fire = scope[map.dispatch].bind(scope);
+        target.dispatch = target.fire = scope[map.dispatch].bind(scope);
     } else {
         target.on = on;
         target.off = off;
         target.once = once;
-        target.fire = dispatch;
+        target.dispatch = target.fire = dispatch;
     }
-//    target.getListeners = getListeners;
+    target.getListeners = getListeners;
 };

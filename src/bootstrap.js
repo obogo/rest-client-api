@@ -6,7 +6,7 @@ http.defaults.headers['Content-Type'] = 'application/json;charset=UTF-8';
 // make api a dispatcher
 dispatcher(exports);
 exports.mock = http.mock;
-exports.registerMock = http.registerMock;
+exports.registerMock = mock.create;
 var resources = !!resources;
 for (var i = 0; i < resources.length; i += 1) {
     crudify(exports, resources[i], resources[i].methods);

@@ -1,3 +1,4 @@
+/* global ajax */
 var http = (function () {
     /**
      * Module dependencies.
@@ -25,11 +26,9 @@ var http = (function () {
             return xhr;
         }()),
         methods = ['head', 'get', 'post', 'put', 'delete'],
-        i = 0,
+        i,
         methodsLength = methods.length,
-        result = {},
-        mockMode,
-        mockRegistry = [];
+        result = {};
 
     function Request(options) {
         this.init(options);
@@ -89,7 +88,7 @@ var http = (function () {
         if (that.success !== undefined) {
             that.xhr.onload = function () {
                 var result = getRequestResult.call(this, that);
-                if(this.status >= 200 && this.status < 300) {
+                if (this.status >= 200 && this.status < 300) {
                     that.success.call(this, result);
                 } else if (that.error !== undefined) {
                     that.error.call(this, result);
@@ -162,32 +161,19 @@ var http = (function () {
         return options;
     }
 
-    function findAdapter(options) {
-        var i, len = mockRegistry.length, mock, result;
-        for (i = 0; i < len; i += 1) {
-            mock = mockRegistry[i];
-            if (mock.type === "string" || mock.type === "object") {
-                result = options.url.match(mock.matcher);
-            } else if (mock.type === "function") {
-                result = mock.matcher(options);
-            }
-            if (result) {
-                result = mock.adapter;
-                break;
-            }
-        }
-        return result;
+    function handleMock(options) {
+        return !!(result.mocker && result.mocker.handle(options, Request));
     }
 
     /**
      * Public Methods
      */
-    for (i; i < methodsLength; i += 1) {
+    for (i = 0; i < methodsLength; i += 1) {
         /* jshint ignore:start */
         (function () {
             var method = methods[i];
-            result[method] = function (url, success) {
-                var options = {}, adapter, adapterResult;
+            result[method] = function (url, success, error) {
+                var options = {};
 
                 if (url === undefined) {
                     throw new Error('CORS: url must be defined');
@@ -195,10 +181,12 @@ var http = (function () {
 
                 if (typeof url === 'object') {
                     options = url;
-
                 } else {
                     if (typeof success === 'function') {
                         options.success = success;
+                    }
+                    if (typeof error === 'function') {
+                        options.error = error;
                     }
 
                     options.url = url;
@@ -206,37 +194,18 @@ var http = (function () {
 
                 options.method = method.toUpperCase();
                 addDefaults(options, result.defaults);
-                if (mockMode) {
-                    adapter = findAdapter(options);
-                    if (adapter) {
-                        adapterResult = adapter(options);
-                        if (adapterResult === true) {
-                            options.method = "GET";
-                            return new Request(options).xhr;
-                        }
-                        return adapterResult;
-                    } else if (window.console && console.warn) {
-                        console.warn("No adapter found for " + options.url + ". Adapter required in mock mode.");
-                    }
+                if (result.handleMock(options)) {
+                    return;
                 }
                 return new Request(options).xhr;
             };
         }());
         /* jshint ignore:end */
     }
-    result.mock = function (enable) {
-        mockMode = !!enable;
-    };
-    /**
-     * registerMock
-     * @param {string|regEx|fn} matcher
-     * @param {constructor} adapter
-     */
-    result.registerMock = function (matcher, adapter) {
-        mockRegistry.push({matcher: matcher, type: typeof matcher, adapter: adapter});
-    };
+    result.mocker = null; // to show where to assign mock handlers.
+    result.handleMock = handleMock;
     result.defaults = {
         headers: {}
     };
     return result;
-}());
+})();

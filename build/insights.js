@@ -584,13 +584,14 @@ var dispatcher = function(target, scope, map) {
         target.on = scope[map.on] && scope[map.on].bind(scope);
         target.off = scope[map.off] && scope[map.off].bind(scope);
         target.once = scope[map.once] && scope[map.once].bind(scope);
-        target.fire = scope[map.dispatch].bind(scope);
+        target.dispatch = target.fire = scope[map.dispatch].bind(scope);
     } else {
         target.on = on;
         target.off = off;
         target.once = once;
-        target.fire = dispatch;
+        target.dispatch = target.fire = dispatch;
     }
+    target.getListeners = getListeners;
 };
 
 var http = function() {
@@ -609,7 +610,7 @@ var http = function() {
             xhr = win.XDomainRequest;
         }
         return xhr;
-    }(), methods = [ "head", "get", "post", "put", "delete" ], i = 0, methodsLength = methods.length, result = {}, mockMode, mockRegistry = [];
+    }(), methods = [ "head", "get", "post", "put", "delete" ], i, methodsLength = methods.length, result = {};
     function Request(options) {
         this.init(options);
     }
@@ -715,27 +716,14 @@ var http = function() {
         }
         return options;
     }
-    function findAdapter(options) {
-        var i, len = mockRegistry.length, mock, result;
-        for (i = 0; i < len; i += 1) {
-            mock = mockRegistry[i];
-            if (mock.type === "string" || mock.type === "object") {
-                result = options.url.match(mock.matcher);
-            } else if (mock.type === "function") {
-                result = mock.matcher(options);
-            }
-            if (result) {
-                result = mock.adapter;
-                break;
-            }
-        }
-        return result;
+    function handleMock(options) {
+        return !!(result.mocker && result.mocker.handle(options, Request));
     }
-    for (i; i < methodsLength; i += 1) {
+    for (i = 0; i < methodsLength; i += 1) {
         (function() {
             var method = methods[i];
-            result[method] = function(url, success) {
-                var options = {}, adapter, adapterResult;
+            result[method] = function(url, success, error) {
+                var options = {};
                 if (url === undefined) {
                     throw new Error("CORS: url must be defined");
                 }
@@ -745,37 +733,22 @@ var http = function() {
                     if (typeof success === "function") {
                         options.success = success;
                     }
+                    if (typeof error === "function") {
+                        options.error = error;
+                    }
                     options.url = url;
                 }
                 options.method = method.toUpperCase();
                 addDefaults(options, result.defaults);
-                if (mockMode) {
-                    adapter = findAdapter(options);
-                    if (adapter) {
-                        adapterResult = adapter(options);
-                        if (adapterResult === true) {
-                            options.method = "GET";
-                            return new Request(options).xhr;
-                        }
-                        return adapterResult;
-                    } else if (window.console && console.warn) {
-                        console.warn("No adapter found for " + options.url + ". Adapter required in mock mode.");
-                    }
+                if (result.handleMock(options)) {
+                    return;
                 }
                 return new Request(options).xhr;
             };
         })();
     }
-    result.mock = function(enable) {
-        mockMode = !!enable;
-    };
-    result.registerMock = function(matcher, adapter) {
-        mockRegistry.push({
-            matcher: matcher,
-            type: typeof matcher,
-            adapter: adapter
-        });
-    };
+    result.mocker = null;
+    result.handleMock = handleMock;
     result.defaults = {
         headers: {}
     };
@@ -1003,6 +976,138 @@ exports.inflection = {
     dasherize: dasherize
 };
 
+(function() {
+    var defaultName = "_jsonpcb", h = http || utils.ajax.http;
+    function getNextName() {
+        var i = 0, name = defaultName;
+        while (window[name]) {
+            name = defaultName + i;
+            i += 1;
+        }
+        return name;
+    }
+    function createCallback(name, callback, script) {
+        window[name] = function(data) {
+            delete window[name];
+            callback(data);
+            document.head.removeChild(script);
+        };
+    }
+    h.jsonp = function(url, success, error) {
+        var name = getNextName(), paramsAry, i, script, options = {};
+        if (url === undefined) {
+            throw new Error("CORS: url must be defined");
+        }
+        if (typeof url === "object") {
+            options = url;
+        } else {
+            if (typeof success === "function") {
+                options.success = success;
+            }
+            if (typeof error === "function") {
+                options.error = error;
+            }
+            options.url = url;
+        }
+        options.callback = name;
+        if (h.handleMock(options)) {
+            return;
+        }
+        script = document.createElement("script");
+        script.type = "text/javascript";
+        script.onload = function() {
+            setTimeout(function() {
+                if (window[name]) {
+                    error(url + " failed.");
+                }
+            });
+        };
+        createCallback(name, success, script);
+        paramsAry = [];
+        for (i in options) {
+            if (options.hasOwnProperty(i)) {
+                paramsAry.push(i + "=" + options[i]);
+            }
+        }
+        script.src = url + "?" + paramsAry.join("&");
+        document.head.appendChild(script);
+    };
+})();
+
+var mock = function() {
+    var registry = [], h = http || utils.ajax.http, result;
+    function matchMock(options) {
+        var i, len = registry.length, mock, result;
+        for (i = 0; i < len; i += 1) {
+            mock = registry[i];
+            if (mock.type === "string" || mock.type === "object") {
+                result = options.url.match(mock.matcher);
+            } else if (mock.type === "function") {
+                result = mock.matcher(options);
+            }
+            if (result) {
+                result = mock;
+                break;
+            }
+        }
+        return result;
+    }
+    function warn() {
+        if (window.console && console.warn) {
+            console.warn.apply(console, arguments);
+        }
+    }
+    h.mock = function(value) {
+        h.mocker = value ? result : null;
+    };
+    result = {
+        create: function(matcher, preCallHandler, postCallHandler) {
+            registry.push({
+                matcher: matcher,
+                type: typeof matcher,
+                pre: preCallHandler,
+                post: postCallHandler
+            });
+        },
+        handle: function(options, Request) {
+            var mock = matchMock(options), response, onload;
+            function preNext() {
+                if (options.data === undefined) {
+                    options.method = "GET";
+                    response = new Request(options);
+                    if (mock.post) {
+                        onload = response.xhr.onload;
+                        response.xhr.onload = function() {
+                            mock.post(function() {
+                                onload.apply(response.xhr);
+                            }, options, result);
+                        };
+                    }
+                } else if (mock.post) {
+                    mock.post(postNext, options, h);
+                }
+            }
+            function postNext() {
+                options.status = options.status || 200;
+                if (options.success && options.status >= 200 && options.status <= 299) {
+                    options.success(options);
+                } else if (options.error) {
+                    options.error(options);
+                } else {
+                    warn("Invalid options object for http.");
+                }
+            }
+            if (mock && mock.pre) {
+                mock.pre(preNext, options, h);
+                return true;
+            }
+            warn("No adapter found for " + options.url + ".");
+            return false;
+        }
+    };
+    return result;
+}();
+
 Array.prototype.isArray = true;
 
 Object.defineProperty(Array.prototype, "isArray", {
@@ -1132,7 +1237,7 @@ dispatcher(exports);
 
 exports.mock = http.mock;
 
-exports.registerMock = http.registerMock;
+exports.registerMock = mock.create;
 
 var resources = [{"methods":{"login":{"type":"POST","url":"/session/login"},"logout":{"type":"GET","url":"/session/logout"},"getAuthUser":{"type":"GET","url":"/session/me"},"getIP":{"type":"GET","url":"//api.ipify.org?format=jsonp"},"getInvitee":{"type":"GET","url":"sites/invite/:id"}}},{"name":"persons"},{"name":"sites"},{"name":"faker"}];
 
