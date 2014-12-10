@@ -37,7 +37,8 @@
             "name": "sites"
         },
         {
-            "name": "faker"
+            "name": "visitors",
+            "methods": "get update"
         }
     ]
 }
