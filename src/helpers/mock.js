@@ -33,7 +33,11 @@ var mock = (function () {
             registry.push({matcher: matcher, type: typeof matcher, pre: preCallHandler, post: postCallHandler});
         },
         handle: function (options, Request) {
-            var mock = matchMock(options), response, onload;
+            var mock = matchMock(options), response, onload, warning = warn;
+
+            if (options.warn) {
+                warning = options.warn;
+            }
 
             function preNext() {
                 if (options.data === undefined) {// they didn't define it. So we still make the call.
@@ -59,7 +63,7 @@ var mock = (function () {
                 } else if (options.error) {
                     options.error(options);
                 } else {
-                    warn("Invalid options object for http.");
+                    warning("Invalid options object for http.");
                 }
             }
 
@@ -68,7 +72,7 @@ var mock = (function () {
                 return true;
             }
 
-            warn("No adapter found for " + options.url + ".");
+            warning("No adapter found for " + options.url + ".");
             return false;
         }
     };
