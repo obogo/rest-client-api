@@ -27,6 +27,22 @@
                 "getInvitee": {
                     "type": "GET",
                     "url": "sites/invite/:id"
+                },
+                "getContactsDay0": {
+                    "type": "GET",
+                    "url": "contacts/new"
+                },
+                "getContactsDay1": {
+                    "type": "GET",
+                    "url": "contacts/yesterday"
+                },
+                "getContactsRecent": {
+                    "type": "GET",
+                    "url": "contacts/recent"
+                },
+                "getContactsSlipping": {
+                    "type": "GET",
+                    "url": "contacts/slipping"
                 }
             }
         },

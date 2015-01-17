@@ -1239,7 +1239,7 @@ exports.mock = http.mock;
 
 exports.registerMock = mock.create;
 
-var resources = [{"methods":{"login":{"type":"POST","url":"/session/login"},"logout":{"type":"GET","url":"/session/logout"},"getAuthUser":{"type":"GET","url":"/session/me"},"getIP":{"type":"GET","url":"//api.ipify.org?format=jsonp"},"getInvitee":{"type":"GET","url":"sites/invite/:id"}}},{"name":"persons"},{"name":"sites"},{"name":"visitors","methods":"get update"}];
+var resources = [{"methods":{"login":{"type":"POST","url":"/session/login"},"logout":{"type":"GET","url":"/session/logout"},"getAuthUser":{"type":"GET","url":"/session/me"},"getIP":{"type":"GET","url":"//api.ipify.org?format=jsonp"},"getInvitee":{"type":"GET","url":"sites/invite/:id"},"getContactsDay0":{"type":"GET","url":"contacts/new"},"getContactsDay1":{"type":"GET","url":"contacts/yesterday"},"getContactsRecent":{"type":"GET","url":"contacts/recent"},"getContactsSlipping":{"type":"GET","url":"contacts/slipping"}}},{"name":"persons"},{"name":"sites"},{"name":"visitors","methods":"get update"}];
 
 for (var i = 0; i < resources.length; i += 1) {
     crudify(exports, resources[i], resources[i].methods);
